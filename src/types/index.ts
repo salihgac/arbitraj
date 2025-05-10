@@ -9,6 +9,8 @@ export interface ValueBet {
   predictedProbability: number;
   valueScore: number;
   status: 'open' | 'won' | 'lost' | 'void';
+  errorMargin?: number;
+  confidence?: number;
 }
 
 export interface ArbitrageBet {
@@ -24,6 +26,9 @@ export interface ArbitrageBet {
   }[];
   profitMargin: number;
   status: 'open' | 'complete' | 'void';
+  totalStake?: number;
+  guaranteedProfit?: number;
+  riskLevel?: 'low' | 'medium' | 'high';
 }
 
 export interface PredictionBot {
@@ -33,6 +38,9 @@ export interface PredictionBot {
   accuracy: number;
   predictionType: string;
   isPremium: boolean;
+  lastUpdated?: Date;
+  totalPredictions?: number;
+  successRate?: number;
 }
 
 export interface Prediction {
@@ -46,6 +54,8 @@ export interface Prediction {
   risk: 'low' | 'medium' | 'high';
   result?: string;
   status: 'pending' | 'won' | 'lost' | 'void';
+  analysis?: string;
+  expectedValue?: number;
 }
 
 export interface OddsMovement {
@@ -58,6 +68,9 @@ export interface OddsMovement {
   timePoints: string[];
   odds: number[];
   isSharp: boolean;
+  volume?: number;
+  significance?: 'low' | 'medium' | 'high';
+  trigger?: 'sharp_money' | 'public_money' | 'injury_news' | 'other';
 }
 
 export interface MatchSimulation {
@@ -74,6 +87,16 @@ export interface MatchSimulation {
   };
   simulationCount: number;
   isPremium: boolean;
+  weatherConditions?: {
+    temperature?: number;
+    precipitation?: number;
+    windSpeed?: number;
+  };
+  keyPlayerImpact?: {
+    playerId: string;
+    name: string;
+    impact: number;
+  }[];
 }
 
 export interface MembershipTier {
@@ -83,6 +106,10 @@ export interface MembershipTier {
   isMonthly: boolean;
   features: string[];
   isPopular?: boolean;
+  maxSimultaneousBets?: number;
+  customBotAccess?: boolean;
+  apiAccess?: boolean;
+  prioritySupport?: boolean;
 }
 
 export interface User {
@@ -97,6 +124,36 @@ export interface User {
     teams: string[];
     betTypes: string[];
   };
+  betHistory?: {
+    totalBets: number;
+    wonBets: number;
+    lostBets: number;
+    profit: number;
+    roi: number;
+  };
+  preferences?: {
+    stakingMethod: 'fixed' | 'kelly' | 'proportional';
+    maxStakePerBet: number;
+    minOdds: number;
+    maxOdds: number;
+    preferredBookmakers: string[];
+  };
+}
+
+export interface BetError {
+  code: string;
+  message: string;
+  severity: 'warning' | 'error';
+  betId?: string;
+  bookmaker?: string;
+}
+
+export interface BettingLimits {
+  minStake: number;
+  maxStake: number;
+  maxDailyStake: number;
+  maxWeeklyStake: number;
+  maxMonthlyStake: number;
 }
 
 export type Theme = 'dark' | 'light';
