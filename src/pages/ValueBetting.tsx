@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Filter, SortDesc, CalendarDays, Bookmark, ChevronDown } from 'lucide-react';
+import { Search, Filter, SortDesc, CalendarDays, Bookmark, ChevronDown, AlertTriangle } from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import ValueBetCard from '../components/dashboard/ValueBetCard';
+import { ValueBet, BetError } from '../types';
 
-// Sample data
 const valueBets = [
   {
     id: '1',
@@ -110,11 +110,45 @@ const betTypes = [
   'Asian Handicap'
 ];
 
+const ITEMS_PER_PAGE = 9;
+
 const ValueBetting: React.FC = () => {
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
   const [selectedBetType, setSelectedBetType] = useState<string | null>(null);
   const [selectedBookmaker, setSelectedBookmaker] = useState<string | null>(null);
   const [valueThreshold, setValueThreshold] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<BetError | null>(null);
+
+  const totalPages = Math.ceil(valueBets.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentBets = valueBets.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFilterApply = () => {
+    setIsLoading(true);
+    setError(null);
+
+    setTimeout(() => {
+      try {
+        setCurrentPage(1);
+        setIsLoading(false);
+      } catch (err) {
+        setError({
+          code: 'FILTER_ERROR',
+          message: 'Failed to apply filters. Please try again.',
+          severity: 'error'
+        });
+        setIsLoading(false);
+      }
+    }, 1000);
+  };
   
   return (
     <div className="space-y-6">
@@ -289,17 +323,63 @@ const ValueBetting: React.FC = () => {
         
         <div className="lg:col-span-3">
           <Card title={`Value Bets (${valueBets.length})`}>
+            {error && (
+              <div className="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-lg flex items-center text-red-400">
+                <AlertTriangle size={18} className="mr-2" />
+                {error.message}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {valueBets.map(bet => (
-                <ValueBetCard key={bet.id} bet={bet} />
-              ))}
+              {isLoading ? (
+                Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="bg-gray-800 rounded-xl h-64"></div>
+                  </div>
+                ))
+              ) : currentBets.length > 0 ? (
+                currentBets.map(bet => (
+                  <ValueBetCard key={bet.id} bet={bet} />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-gray-400">
+                  No value bets found matching your criteria
+                </div>
+              )}
             </div>
             
-            <div className="mt-6 text-center">
-              <Button variant="outline">
-                Load More
-              </Button>
-            </div>
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Previous
+                </Button>
+                
+                {Array.from({ length: totalPages }).map((_, index) => (
+                  <Button
+                    key={index}
+                    variant={currentPage === index + 1 ? "primary" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </Card>
         </div>
       </div>
