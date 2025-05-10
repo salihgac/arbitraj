@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import ValueBetting from './pages/ValueBetting';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -15,8 +17,8 @@ function App() {
           <Route path="market-movement" element={<Dashboard />} />
           <Route path="predictions" element={<Dashboard />} />
           <Route path="bankroll" element={<Dashboard />} />
-          <Route path="profile" element={<Dashboard />} />
-          <Route path="settings" element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
